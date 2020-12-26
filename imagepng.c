@@ -103,3 +103,32 @@ void liberer_image(imagepng im){
         im.rouge = NULL;
     }
 }
+
+imagepng calculer_gradient(imagepng im, uint32_t rayon){
+    uint32_t i, j, k, l, debut_ligne, fin_ligne, debut_colonne, fin_colonne;
+    unsigned max, min;
+    imagepng gradient = allouer_image(im.hauteur, im.largeur);
+
+    //Parcours de chaque pixel de l'image pour calculer son gradient
+    for(i = 0; i < im.hauteur; i++)
+        for(j = 0; j < im.largeur; j++){
+            debut_ligne = i - rayon;
+            fin_ligne = i + rayon;
+            debut_colonne = j - rayon;
+            fin_colonne = j + rayon;
+            max = min = im.rouge[i][j];
+            //Recherche du max et du min des valeurs entourant le pixel im.rouge[i][j] selon le rayon
+            for(k = debut_ligne; k < fin_ligne; k++)
+                for(l = debut_colonne; l < fin_colonne; l++){
+                    if((0 <= k && k < im.hauteur) && (0 <= l && l < im.largeur)){
+                        if(max < im.rouge[k][l])
+                            max = im.rouge[k][l];
+                        else if(min > im.rouge[k][l])
+                            min = im.rouge[k][l];
+                    }
+                }
+            gradient.rouge[i][j] = max - min;
+        }
+        
+    return gradient;
+}

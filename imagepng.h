@@ -2,6 +2,7 @@
 #define __IMAGEPNG_H__
 
 #include "lodepng.h"
+#include <stdint.h>
 
 //Définition de la structure permettant de stocker les données relatives à l'image en noir et blanc
 typedef struct{
@@ -38,5 +39,11 @@ void ecrire_image(imagepng im, char* nom_fichier);
  * Libère de la mémoire l'imagepng spécifié
  */
 void liberer_image(imagepng im);
+
+/**
+ * Calcule et envoie l'image de gradient de l'image spécifiée à l'aide 
+ * d'un rayon spécifié.
+ */
+imagepng calculer_gradient(imagepng im, uint32_t rayon);
 
 #endif
