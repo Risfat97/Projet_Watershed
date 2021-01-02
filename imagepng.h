@@ -41,4 +41,10 @@ void liberer_image(imagepng im);
  */
 imagepng calculer_gradient(imagepng im, uint32_t rayon);
 
+/**
+ * Calcule et renvoie la ligne de partage des eaux calculée sur l'imagepng
+ * gradient et l'imagepng marqueur.
+ */
+void calculerLPE(imagepng gradient, imagepng marqueur);
+
 #endif

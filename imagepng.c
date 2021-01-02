@@ -1,4 +1,5 @@
 #include "imagepng.h"
+#include "tas_min.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -110,8 +111,8 @@ imagepng calculer_gradient(imagepng im, uint32_t rayon){
             fin_colonne = j + rayon;
             max = min = im.rouge[i][j];
             //Recherche du max et du min des valeurs entourant le pixel im.rouge[i][j] selon le rayon
-            for(k = debut_ligne; k < fin_ligne; k++)
-                for(l = debut_colonne; l < fin_colonne; l++){
+            for(k = debut_ligne; k <= fin_ligne; k++)
+                for(l = debut_colonne; l <= fin_colonne; l++){
                     if((0 <= k && k < im.hauteur) && (0 <= l && l < im.largeur)){
                         if(max < im.rouge[k][l])
                             max = im.rouge[k][l];
@@ -123,4 +124,38 @@ imagepng calculer_gradient(imagepng im, uint32_t rayon){
         }
         
     return gradient;
+}
+
+void calculerLPE(imagepng gradient, imagepng marqueur){
+    tas_min tm = creer_tas_min(); // tm représente la structure de donnée pour faciliter le calcul de la LPE
+    uint64_t i, j, k, l;
+    data_t donnee, donnee_min;
+
+    for(i = 0; i < marqueur.hauteur; i++)
+        for(j = 0; j < marqueur.largeur; j++)
+            if(marqueur.rouge[i][j] != 0){
+                donnee.ligne = i;
+                donnee.colonne = j;
+                donnee.cle = gradient.rouge[i][j];
+                inserer_dans_tas(donnee, &tm);
+            }
+
+    while(!est_vide(tm)){
+        donnee_min = extraire_minimum_tas(&tm);
+
+        for(k = donnee_min.ligne-1; k <= donnee_min.ligne+1; k++)
+                for(l = donnee_min.colonne-1; l <= donnee_min.colonne+1; l++){
+                    if((0 <= k && k < gradient.hauteur) && (0 <= l && l < gradient.largeur)){
+                        if(marqueur.rouge[k][l] == 0){
+                            marqueur.rouge[k][l] = marqueur.rouge[donnee_min.ligne][donnee_min.colonne];
+                            donnee.ligne = k;
+                            donnee.colonne = l;
+                            donnee.cle = gradient.rouge[k][l];
+                            inserer_dans_tas(donnee, &tm);
+                        }
+                    }
+                }
+    }
+
+    liberer_tas(tm);  
 }
