@@ -1,5 +1,5 @@
 #include "imagepng.h"
-#include "tas_min.h"
+#include "table_de_hachage.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -127,35 +127,35 @@ imagepng calculer_gradient(imagepng im, uint32_t rayon){
 }
 
 void calculerLPE(imagepng gradient, imagepng marqueur){
-    tas_min tm = creer_tas_min(); // tm représente la structure de donnée pour faciliter le calcul de la LPE
+    table_hachage th; // th représente la structure de donnée pour faciliter le calcul de la LPE
     uint64_t i, j, k, l;
-    data_t donnee, donnee_min;
+    uint8_t cle;
+    maillon_t *mll, *autre_mll;
+    //data_t donnee, donnee_min;
 
+    initialiser_table(th);
     for(i = 0; i < marqueur.hauteur; i++)
         for(j = 0; j < marqueur.largeur; j++)
             if(marqueur.rouge[i][j] != 0){
-                donnee.ligne = i;
-                donnee.colonne = j;
-                donnee.cle = gradient.rouge[i][j];
-                inserer_dans_tas(donnee, &tm);
+                mll = creer_maillon(i, j, gradient.rouge[i][j]);
+                cle = hacher(th, mll);
+                ajouter_dans_table(th, cle, mll);
             }
 
-    while(!est_vide(tm)){
-        donnee_min = extraire_minimum_tas(&tm);
+    while( (mll = extraire_minimum_table(th)) != NULL){
 
-        for(k = donnee_min.ligne-1; k <= donnee_min.ligne+1; k++)
-                for(l = donnee_min.colonne-1; l <= donnee_min.colonne+1; l++){
+        for(k = mll->ligne-1; k <= mll->ligne+1; k++)
+                for(l = mll->colonne-1; l <= mll->colonne+1; l++){
                     if((0 <= k && k < gradient.hauteur) && (0 <= l && l < gradient.largeur)){
                         if(marqueur.rouge[k][l] == 0){
-                            marqueur.rouge[k][l] = marqueur.rouge[donnee_min.ligne][donnee_min.colonne];
-                            donnee.ligne = k;
-                            donnee.colonne = l;
-                            donnee.cle = gradient.rouge[k][l];
-                            inserer_dans_tas(donnee, &tm);
+                            marqueur.rouge[k][l] = marqueur.rouge[mll->ligne][mll->colonne];
+                            autre_mll = creer_maillon(k, l, gradient.rouge[k][l]);
+                            cle = hacher(th, autre_mll);
+                            ajouter_dans_table(th, cle, autre_mll);
                         }
                     }
                 }
     }
 
-    liberer_tas(tm);  
+    detruire_table(th);  
 }
