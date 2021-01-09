@@ -5,14 +5,14 @@
 
 // Structure représentant les éléments à stocker dans le tas
 typedef struct {
-    uint64_t ligne, colonne;
+    uint32_t ligne, colonne;
     uint8_t cle;
 } data_t;
 
 // Structure de tas implémenté via un tableau
 typedef struct{
-    uint64_t taille_max;
-    uint64_t nbElements;
+    uint32_t taille_max;
+    uint32_t nbElements;
     data_t *tab;
 } tas_min;
 
