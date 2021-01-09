@@ -3,9 +3,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-imagepng allouer_image(uint64_t hauteur, uint64_t largeur){
+imagepng allouer_image(uint32_t hauteur, uint32_t largeur){
     imagepng im;    // l'imagepng à retourner
-    uint64_t i, j;
+    uint32_t i, j;
 
     im.hauteur = hauteur;
     im.largeur = largeur;
@@ -34,7 +34,7 @@ imagepng allouer_image(uint64_t hauteur, uint64_t largeur){
 
 imagepng lire_image(char* nom_fichier){
     imagepng im;
-    uint64_t i, j;
+    uint32_t i, j;
     unsigned error;
     unsigned char* tab; // tableau unidimensionnel qui contiendra les valeurs de pixel de l'image
     unsigned largeur, hauteur;
@@ -63,7 +63,7 @@ imagepng lire_image(char* nom_fichier){
 void ecrire_image(imagepng im, char* nom_fichier){
     unsigned error;
     unsigned char* tab;  // tableau unidimensionnel qui contiendra les valeurs de pixel de l'image
-    uint64_t i, j, taille = im.largeur * im.hauteur * 4;   // taille du tableau unidimensionnel
+    uint32_t i, j, taille = im.largeur * im.hauteur * 4;   // taille du tableau unidimensionnel
 
     tab = (unsigned char*)malloc(taille);
     if(!tab){
@@ -90,7 +90,7 @@ void ecrire_image(imagepng im, char* nom_fichier){
 
 void liberer_image(imagepng im){
     if(im.rouge){
-        for(uint64_t i = 0; i < im.hauteur; i++)
+        for(uint32_t i = 0; i < im.hauteur; i++)
             free(im.rouge[i]); //liberation mémoire de chaque ligne du tableau 2d
         free(im.rouge); //puis libération mémoire du tableau 2d
         im.rouge = NULL;
@@ -98,7 +98,7 @@ void liberer_image(imagepng im){
 }
 
 imagepng calculer_gradient(imagepng im, uint32_t rayon){
-    uint64_t i, j, k, l, debut_ligne, fin_ligne, debut_colonne, fin_colonne;
+    uint32_t i, j, k, l, debut_ligne, fin_ligne, debut_colonne, fin_colonne;
     uint8_t max, min;
     imagepng gradient = allouer_image(im.hauteur, im.largeur);
 
@@ -128,7 +128,7 @@ imagepng calculer_gradient(imagepng im, uint32_t rayon){
 
 void calculerLPE(imagepng gradient, imagepng marqueur){
     tas_min tm = creer_tas_min(); // tm représente la structure de donnée pour faciliter le calcul de la LPE
-    uint64_t i, j, k, l;
+    uint32_t i, j, k, l;
     data_t donnee, donnee_min;
 
     for(i = 0; i < marqueur.hauteur; i++)

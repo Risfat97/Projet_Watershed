@@ -35,7 +35,7 @@ void inserer_dans_tas(data_t donnee, tas_min* tas){
     tas->tab[tas->nbElements++] = donnee;
 
     /* Réorganisation du tas */
-    uint64_t indice = tas->nbElements - 1;
+    uint32_t indice = tas->nbElements - 1;
     data_t tmp;
     while(indice > 0 && tas->tab[Parent(indice)].cle > tas->tab[indice].cle){
         tmp = tas->tab[indice];
@@ -50,7 +50,7 @@ data_t extraire_minimum_tas(tas_min* tas){
     tas->tab[0] = tas->tab[tas->nbElements-1];
     tas->nbElements--;
     /* Réorganisation du tas */
-    uint64_t indice = 1;
+    uint32_t indice = 1;
     while(indice < tas->nbElements){
         if((indice + 1) < tas->nbElements && tas->tab[indice].cle > tas->tab[indice + 1].cle)
             indice++;
@@ -65,7 +65,7 @@ data_t extraire_minimum_tas(tas_min* tas){
 }
 
 void agrandir_tas(tas_min* tas){
-    uint64_t newSize = 1.5 * tas->taille_max;
+    uint32_t newSize = 1.5 * tas->taille_max;
     tas->tab = (data_t*) realloc(tas->tab, newSize * sizeof(data_t));
     if(tas->tab == NULL){
         fprintf(stderr, "Echec allocation mémoire, pour agrandir le tas.\n");
