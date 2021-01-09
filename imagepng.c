@@ -3,9 +3,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-imagepng allouer_image(uint64_t hauteur, uint64_t largeur){
+imagepng allouer_image(uint32_t hauteur, uint32_t largeur){
     imagepng im;    // l'imagepng à retourner
-    uint64_t i, j;
+    uint32_t i, j;
 
     im.hauteur = hauteur;
     im.largeur = largeur;
@@ -34,7 +34,7 @@ imagepng allouer_image(uint64_t hauteur, uint64_t largeur){
 
 imagepng lire_image(char* nom_fichier){
     imagepng im;
-    uint64_t i, j;
+    uint32_t i, j;
     unsigned error;
     unsigned char* tab; // tableau unidimensionnel qui contiendra les valeurs de pixel de l'image
     unsigned largeur, hauteur;
@@ -63,7 +63,7 @@ imagepng lire_image(char* nom_fichier){
 void ecrire_image(imagepng im, char* nom_fichier){
     unsigned error;
     unsigned char* tab;  // tableau unidimensionnel qui contiendra les valeurs de pixel de l'image
-    uint64_t i, j, taille = im.largeur * im.hauteur * 4;   // taille du tableau unidimensionnel
+    uint32_t i, j, taille = im.largeur * im.hauteur * 4;   // taille du tableau unidimensionnel
 
     tab = (unsigned char*)malloc(taille);
     if(!tab){
@@ -90,7 +90,7 @@ void ecrire_image(imagepng im, char* nom_fichier){
 
 void liberer_image(imagepng im){
     if(im.rouge){
-        for(uint64_t i = 0; i < im.hauteur; i++)
+        for(uint32_t i = 0; i < im.hauteur; i++)
             free(im.rouge[i]); //liberation mémoire de chaque ligne du tableau 2d
         free(im.rouge); //puis libération mémoire du tableau 2d
         im.rouge = NULL;
@@ -98,7 +98,7 @@ void liberer_image(imagepng im){
 }
 
 imagepng calculer_gradient(imagepng im, uint32_t rayon){
-    uint64_t i, j, k, l, debut_ligne, fin_ligne, debut_colonne, fin_colonne;
+    uint32_t i, j, k, l, debut_ligne, fin_ligne, debut_colonne, fin_colonne;
     uint8_t max, min;
     imagepng gradient = allouer_image(im.hauteur, im.largeur);
 
@@ -128,34 +128,38 @@ imagepng calculer_gradient(imagepng im, uint32_t rayon){
 
 void calculerLPE(imagepng gradient, imagepng marqueur){
     table_hachage th; // th représente la structure de donnée pour faciliter le calcul de la LPE
-    uint64_t i, j, k, l;
+    uint32_t i, j, k, l;
     uint8_t cle;
-    maillon_t *mll, *autre_mll;
-    //data_t donnee, donnee_min;
+    data_t donnee, donnee_min;
 
-    initialiser_table(th);
+    th = creer_table();
+    
     for(i = 0; i < marqueur.hauteur; i++)
         for(j = 0; j < marqueur.largeur; j++)
             if(marqueur.rouge[i][j] != 0){
-                mll = creer_maillon(i, j, gradient.rouge[i][j]);
-                cle = hacher(th, mll);
-                ajouter_dans_table(th, cle, mll);
+                donnee.ligne = i;
+                donnee.colonne = j;
+                donnee.cle = gradient.rouge[i][j];
+                cle = hacher(th, donnee);
+                ajouter_dans_table(th, cle, donnee);
             }
 
-    while( (mll = extraire_minimum_table(th)) != NULL){
-
-        for(k = mll->ligne-1; k <= mll->ligne+1; k++)
-                for(l = mll->colonne-1; l <= mll->colonne+1; l++){
+    do{
+        donnee_min = extraire_minimum_table(th);
+        if(donnee_min.ligne != -1)
+            for(k = donnee_min.ligne-1; k <= donnee_min.ligne+1; k++)
+                for(l = donnee_min.colonne-1; l <= donnee_min.colonne+1; l++)
                     if((0 <= k && k < gradient.hauteur) && (0 <= l && l < gradient.largeur)){
                         if(marqueur.rouge[k][l] == 0){
-                            marqueur.rouge[k][l] = marqueur.rouge[mll->ligne][mll->colonne];
-                            autre_mll = creer_maillon(k, l, gradient.rouge[k][l]);
-                            cle = hacher(th, autre_mll);
-                            ajouter_dans_table(th, cle, autre_mll);
+                            marqueur.rouge[k][l] = marqueur.rouge[donnee_min.ligne][donnee_min.colonne];
+                            donnee.ligne = k;
+                            donnee.colonne = l;
+                            donnee.cle = gradient.rouge[k][l];
+                            cle = hacher(th, donnee);
+                            ajouter_dans_table(th, cle, donnee);
                         }
                     }
-                }
-    }
+    } while(donnee_min.ligne != -1);
 
     detruire_table(th);  
 }

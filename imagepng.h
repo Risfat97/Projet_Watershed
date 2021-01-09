@@ -6,8 +6,8 @@
 
 //Définition de la structure permettant de stocker les données relatives à l'image en noir et blanc
 typedef struct{
-    uint64_t hauteur;   // hauteur de l'image
-    uint64_t largeur;   // largeur de l'image
+    uint32_t hauteur;   // hauteur de l'image
+    uint32_t largeur;   // largeur de l'image
     uint8_t **rouge;  // canal rouge de l'image
 } imagepng;
 
@@ -17,7 +17,7 @@ typedef struct{
  * le tableau 2d de dimension hauteur x largeur remplis de 0 puis 
  * retourne cette image.
  */
-imagepng allouer_image(uint64_t hauteur, uint64_t largeur);
+imagepng allouer_image(uint32_t hauteur, uint32_t largeur);
 
 /**
  * Lit une image PNG dont le nom est le nom spécifié, la stocke dans une structure imagepng
