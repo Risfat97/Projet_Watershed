@@ -47,4 +47,8 @@ imagepng calculer_gradient(imagepng im, uint32_t rayon);
  */
 void calculerLPE(imagepng gradient, imagepng marqueur);
 
+void mis_en_evidence(imagepng im, imagepng im2);
+
+void ecrire_image_mis_en_evidence(imagepng im, imagepng im2, char* nom_fichier);
+
 #endif
