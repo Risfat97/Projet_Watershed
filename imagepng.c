@@ -163,3 +163,54 @@ void calculerLPE(imagepng gradient, imagepng marqueur){
 
     detruire_table(th);  
 }
+
+void mis_en_evidence(imagepng im, imagepng im2){
+    uint32_t i, j, k, l;
+    for(i = 0; i < im.hauteur; i++)
+        for(j = 0; j < im.largeur; j++)
+            if(im2.rouge[i][j] == 100){
+                for(k = i-1; k <= i+1; k++)
+                    for(l = j-1; l <= j+1; l++)
+                        if((0 <= k && k < im.hauteur) && (0 <= l && l < im.largeur) \
+                            && (im2.rouge[k][l] == 200)){
+                            im2.rouge[i][j] = 0;
+                            k = i + 2; //pour sortir de la boucle de k
+                            l = j + 2; //Pour sortir de la boucle de l
+                        }
+            }
+}
+
+void ecrire_image_mis_en_evidence(imagepng im, imagepng im2, char* nom_fichier){
+    unsigned error;
+    unsigned char* tab;  // tableau unidimensionnel qui contiendra les valeurs de pixel de l'image
+    uint32_t taille = im.largeur * im.hauteur * 4;   // taille du tableau unidimensionnel
+    uint32_t i, j;
+
+    tab = (unsigned char*)malloc(taille);
+    if(!tab){
+        fprintf(stderr, "Erreur, impossible d'écrire l'image dans le fichier\n");
+        return;
+    }
+ 
+    for(i = 0; i < im.hauteur; i++)
+        for(j = 0; j < im.largeur; j++){
+            //copie des pixels dans le tableau unidimensionnel
+            if(im2.rouge[i][j] == 0){
+                tab[(i * im.largeur + j) * 4] = 255; //niveau de rouge
+                tab[(i * im.largeur + j) * 4 + 1] = 0; //niveau de vert
+                tab[(i * im.largeur + j) * 4 + 2] = 0; //niveau de bleu
+            }else{ 
+                tab[(i * im.largeur + j) * 4] = im.rouge[i][j]; //niveau de rouge
+                tab[(i * im.largeur + j) * 4 + 1] = im.rouge[i][j]; //niveau de vert
+                tab[(i * im.largeur + j) * 4 + 2] = im.rouge[i][j]; //niveau de bleu
+            }
+            tab[(i * im.largeur + j) * 4 + 3] = 255;    //niveau alpha = 255   
+        }
+
+    //encodage à partir d'une image brute RVBa 32 bits dans le fichier avec le nom spécifié 
+    error = lodepng_encode32_file(nom_fichier, tab, im.largeur, im.hauteur);
+    if(error) 
+        printf("error %u: %s\n", error, lodepng_error_text(error));
+
+    free(tab); 
+}
